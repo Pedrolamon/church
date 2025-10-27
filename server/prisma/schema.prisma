@@ -1,0 +1,612 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:./dev.db"
+}
+
+// ==========================================
+// AUTHENTICATION & AUTHORIZATION MODELS
+// ==========================================
+
+model User {
+    id       String   @id @default(cuid())
+    email    String   @unique
+    password String
+    name     String
+    role     UserRole @default(MEMBER)
+    isActive Boolean  @default(true)
+
+    // Profile information
+    phone  String?
+    avatar String?
+
+    // Relations
+    member Member? @relation("UserMember")
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+    SUPER_ADMIN
+    ADMIN
+    PASTOR
+    LEADER
+    MEMBER
+    VOLUNTEER
+}
+
+// ==========================================
+// MEMBER MANAGEMENT MODELS
+// ==========================================
+
+model Member {
+    id               String       @id @default(cuid())
+    name             String
+    email            String?      @unique
+    phone            String?
+    birthDate        DateTime?
+    address          String?
+    photo            String?
+    joinDate         DateTime     @default(now())
+    status           MemberStatus @default(ACTIVE)
+    baptismDate      DateTime?
+    consecrationDate DateTime?
+
+    // Relations
+    familyId             String?
+    family               Family?                @relation(fields: [familyId], references: [id])
+    groups               MemberGroup[]
+    ministries           MemberMinistry[]
+    participationHistory ParticipationHistory[]
+    donations            Donation[]
+    approvedExpenses     Expense[]              @relation("ExpenseApprover")
+    sentMessages         Message[]              @relation("MessageSender")
+    organizedEvents      Event[]                @relation("EventOrganizer")
+    eventAttendance      EventAttendee[]
+    eventRegistrations   EventRegistration[]
+    performedCheckIns    CheckIn[]              @relation("CheckInPerformer")
+    volunteers           Volunteer[]
+    userId               String?
+    user                 User?                  @relation("UserMember", fields: [userId], references: [id])
+
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    Family            Family?             @relation(fields: [familyId], references: [id])
+    Group             Group[]
+    GroupAttendance   GroupAttendance[]
+    Ministry          Ministry[]
+    CheckIn           CheckIn[]
+    InventoryMovement InventoryMovement[]
+    Family            Family?
+}
+
+model Family {
+    id     String  @id @default(cuid())
+    name   String
+    headId String? @unique
+    head   Member? @relation("FamilyHead", fields: [headId], references: [id])
+
+    members Member[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum MemberStatus {
+    ACTIVE
+    INACTIVE
+    TRANSFERRED
+    DECEASED
+}
+
+// ==========================================
+// GROUP MANAGEMENT MODELS
+// ==========================================
+
+model Group {
+    id          String    @id @default(cuid())
+    name        String
+    description String?
+    type        GroupType
+    leaderId    String?
+    leader      Member?   @relation(fields: [leaderId], references: [id])
+
+    members  MemberGroup[]
+    meetings GroupMeeting[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Event     Event[]
+}
+
+model GroupMeeting {
+    id          String   @id @default(cuid())
+    groupId     String
+    group       Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+    title       String
+    description String?
+    meetingDate DateTime
+    location    String?
+    agenda      String?
+    notes       String?
+
+    attendance GroupAttendance[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model GroupAttendance {
+    id        String           @id @default(cuid())
+    meetingId String
+    meeting   GroupMeeting     @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+    memberId  String
+    member    Member           @relation(fields: [memberId], references: [id], onDelete: Cascade)
+    status    AttendanceStatus @default(PRESENT)
+    notes     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([meetingId, memberId])
+}
+
+model MemberGroup {
+    id       String   @id @default(cuid())
+    memberId String
+    groupId  String
+    joinedAt DateTime @default(now())
+
+    member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+    group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+    @@unique([memberId, groupId])
+}
+
+enum GroupType {
+    CELL
+    SMALL_GROUP
+    YOUTH
+    CHILDREN
+    ADULTS
+    OTHER
+}
+
+enum AttendanceStatus {
+    PRESENT
+    ABSENT
+    LATE
+    EXCUSED
+}
+
+// ==========================================
+// MINISTRY MANAGEMENT MODELS
+// ==========================================
+
+model Ministry {
+    id          String  @id @default(cuid())
+    name        String
+    description String?
+    leaderId    String?
+    leader      Member? @relation(fields: [leaderId], references: [id])
+
+    members   MemberMinistry[]
+    donations Donation[]
+    expenses  Expense[]
+    budgets   MinistryBudget[]
+
+    createdAt         DateTime            @default(now())
+    updatedAt         DateTime            @updatedAt
+    Event             Event[]
+    ServiceArea       ServiceArea[]
+    InventoryMovement InventoryMovement[]
+}
+
+model MemberMinistry {
+    id         String   @id @default(cuid())
+    memberId   String
+    ministryId String
+    joinedAt   DateTime @default(now())
+
+    member   Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+    ministry Ministry @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+
+    @@unique([memberId, ministryId])
+}
+
+model MinistryBudget {
+    id         String   @id @default(cuid())
+    ministryId String
+    ministry   Ministry @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+    year       Int
+    month      Int
+    allocated  Float
+    spent      Float    @default(0)
+    remaining  Float
+    createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
+
+    @@unique([ministryId, year, month])
+}
+
+// ==========================================
+// FINANCIAL MANAGEMENT MODELS
+// ==========================================
+
+model Donation {
+    id          String       @id @default(cuid())
+    memberId    String
+    member      Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+    amount      Float
+    type        DonationType
+    date        DateTime     @default(now())
+    description String?
+    ministryId  String?
+    ministry    Ministry?    @relation(fields: [ministryId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Expense {
+    id          String          @id @default(cuid())
+    description String
+    amount      Float
+    category    ExpenseCategory
+    date        DateTime        @default(now())
+    ministryId  String?
+    ministry    Ministry?       @relation(fields: [ministryId], references: [id])
+    approvedBy  String?
+    approved    Member?         @relation("ExpenseApprover", fields: [approvedBy], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum DonationType {
+    TITHE
+    OFFERING
+    SPECIAL_OFFERING
+    BUILDING_FUND
+    MISSIONS
+    OTHER
+}
+
+enum ExpenseCategory {
+    STAFF_SALARY
+    UTILITIES
+    MAINTENANCE
+    SUPPLIES
+    EVENTS
+    MISSIONS
+    BUILDING
+    INSURANCE
+    OTHER
+}
+
+// ==========================================
+// COMMUNICATION MODELS
+// ==========================================
+
+model Message {
+    id          String          @id @default(cuid())
+    title       String
+    content     String
+    type        MessageType
+    priority    MessagePriority @default(NORMAL)
+    status      MessageStatus   @default(DRAFT)
+    sendToAll   Boolean         @default(false)
+    memberIds   String?
+    groupIds    String?
+    ministryIds String?
+    scheduledAt DateTime?
+    sentAt      DateTime?
+
+    senderId String
+    sender   Member @relation("MessageSender", fields: [senderId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum MessageType {
+    EMAIL
+    SMS
+    NOTIFICATION
+    NEWSLETTER
+}
+
+enum MessagePriority {
+    LOW
+    NORMAL
+    HIGH
+    URGENT
+}
+
+enum MessageStatus {
+    DRAFT
+    SCHEDULED
+    SENT
+    FAILED
+}
+
+// ==========================================
+// EVENT MANAGEMENT MODELS
+// ==========================================
+
+model Event {
+    id                   String    @id @default(cuid())
+    title                String
+    description          String?
+    type                 EventType
+    startDate            DateTime
+    endDate              DateTime
+    location             String?
+    maxAttendees         Int?
+    allowRegistration    Boolean   @default(false)
+    registrationDeadline DateTime?
+    registrationFee      Float?
+    registrationForm     String?
+
+    organizerId String
+    organizer   Member @relation("EventOrganizer", fields: [organizerId], references: [id])
+
+    attendees     EventAttendee[]
+    registrations EventRegistration[]
+    checkIns      CheckIn[]
+
+    ministryId String?
+    ministry   Ministry? @relation(fields: [ministryId], references: [id])
+    groupId    String?
+    group      Group?    @relation(fields: [groupId], references: [id])
+
+    createdAt           DateTime              @default(now())
+    updatedAt           DateTime              @updatedAt
+    VolunteerAssignment VolunteerAssignment[]
+    InventoryMovement   InventoryMovement[]
+}
+
+model EventAttendee {
+    id       String         @id @default(cuid())
+    eventId  String
+    memberId String
+    status   AttendeeStatus @default(PENDING)
+
+    event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+    @@unique([eventId, memberId])
+}
+
+model EventRegistration {
+    id            String             @id @default(cuid())
+    eventId       String
+    memberId      String
+    status        RegistrationStatus @default(PENDING)
+    formData      String?
+    registeredAt  DateTime           @default(now())
+    paymentStatus PaymentStatus      @default(PENDING)
+    paymentAmount Float?
+    paymentDate   DateTime?
+
+    event  Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+    @@unique([eventId, memberId])
+}
+
+model CheckIn {
+    id           String    @id @default(cuid())
+    eventId      String
+    memberId     String?
+    visitorName  String?
+    checkInTime  DateTime  @default(now())
+    checkOutTime DateTime?
+    checkedInBy  String
+    notes        String?
+    isVisitor    Boolean   @default(false)
+
+    event  Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+    member Member? @relation(fields: [memberId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Member    Member?  @relation(fields: [memberId], references: [id])
+    Member    Member?  @relation(fields: [memberId], references: [id])
+}
+
+enum EventType {
+    SERVICE
+    MEETING
+    CONFERENCE
+    WORKSHOP
+    SOCIAL
+    BAPTISM
+    WEDDING
+    FUNERAL
+    OTHER
+}
+
+enum AttendeeStatus {
+    PENDING
+    CONFIRMED
+    DECLINED
+    ATTENDED
+}
+
+enum RegistrationStatus {
+    PENDING
+    APPROVED
+    REJECTED
+    CANCELLED
+    COMPLETED
+}
+
+enum PaymentStatus {
+    PENDING
+    PAID
+    REFUNDED
+    CANCELLED
+}
+
+// ==========================================
+// VOLUNTEER MANAGEMENT MODELS
+// ==========================================
+
+model ServiceArea {
+    id          String    @id @default(cuid())
+    name        String    @unique
+    description String?
+    ministryId  String?
+    ministry    Ministry? @relation(fields: [ministryId], references: [id])
+
+    volunteers Volunteer[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Volunteer {
+    id            String          @id @default(cuid())
+    memberId      String
+    member        Member          @relation(fields: [memberId], references: [id])
+    serviceAreaId String
+    serviceArea   ServiceArea     @relation(fields: [serviceAreaId], references: [id])
+    availability  String?
+    skills        String?
+    experience    String?
+    status        VolunteerStatus @default(ACTIVE)
+    joinedAt      DateTime        @default(now())
+
+    assignments VolunteerAssignment[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([memberId, serviceAreaId])
+}
+
+model VolunteerAssignment {
+    id          String           @id @default(cuid())
+    volunteerId String
+    volunteer   Volunteer        @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+    eventId     String?
+    event       Event?           @relation(fields: [eventId], references: [id])
+    task        String
+    date        DateTime
+    startTime   DateTime
+    endTime     DateTime
+    status      AssignmentStatus @default(PENDING)
+    notes       String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum VolunteerStatus {
+    ACTIVE
+    INACTIVE
+    ON_LEAVE
+    SUSPENDED
+}
+
+enum AssignmentStatus {
+    PENDING
+    CONFIRMED
+    COMPLETED
+    CANCELLED
+    NO_SHOW
+}
+
+// ==========================================
+// INVENTORY MANAGEMENT MODELS
+// ==========================================
+
+model InventoryCategory {
+    id          String  @id @default(cuid())
+    name        String  @unique
+    description String?
+
+    items InventoryItem[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model InventoryItem {
+    id           String            @id @default(cuid())
+    name         String
+    description  String?
+    categoryId   String
+    category     InventoryCategory @relation(fields: [categoryId], references: [id])
+    currentStock Int               @default(0)
+    minStock     Int               @default(0)
+    maxStock     Int?
+    unit         String            @default("unidade")
+    location     String?
+    supplier     String?
+    unitCost     Float?
+    totalValue   Float?
+
+    movements InventoryMovement[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model InventoryMovement {
+    id          String        @id @default(cuid())
+    itemId      String
+    item        InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+    type        MovementType
+    quantity    Int
+    reason      String?
+    notes       String?
+    eventId     String?
+    event       Event?        @relation(fields: [eventId], references: [id])
+    ministryId  String?
+    ministry    Ministry?     @relation(fields: [ministryId], references: [id])
+    performedBy String
+    performed   Member        @relation(fields: [performedBy], references: [id])
+
+    createdAt DateTime @default(now())
+}
+
+enum MovementType {
+    IN
+    OUT
+    ADJUST
+    RETURN
+}
+
+// ==========================================
+// PARTICIPATION HISTORY
+// ==========================================
+
+model ParticipationHistory {
+    id       String            @id @default(cuid())
+    memberId String
+    member   Member            @relation(fields: [memberId], references: [id], onDelete: Cascade)
+    event    String
+    date     DateTime
+    type     ParticipationType
+    notes    String?
+
+    createdAt DateTime @default(now())
+}
+
+enum ParticipationType {
+    SERVICE
+    MEETING
+    EVENT
+    BAPTISM
+    CONSECRATION
+    OTHER
+}
