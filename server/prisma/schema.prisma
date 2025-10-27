@@ -62,6 +62,7 @@ model Member {
     // Relations
     familyId             String?
     family               Family?                @relation(fields: [familyId], references: [id])
+    familyHead           Family?                @relation("FamilyHead")
     groups               MemberGroup[]
     ministries           MemberMinistry[]
     participationHistory ParticipationHistory[]
@@ -73,18 +74,15 @@ model Member {
     eventRegistrations   EventRegistration[]
     performedCheckIns    CheckIn[]              @relation("CheckInPerformer")
     volunteers           Volunteer[]
-    userId               String?
+    userId               String?                @unique
     user                 User?                  @relation("UserMember", fields: [userId], references: [id])
 
     createdAt         DateTime            @default(now())
     updatedAt         DateTime            @updatedAt
-    Family            Family?             @relation(fields: [familyId], references: [id])
-    Group             Group[]
     GroupAttendance   GroupAttendance[]
-    Ministry          Ministry[]
-    CheckIn           CheckIn[]
     InventoryMovement InventoryMovement[]
-    Family            Family?
+    ledGroups         Group[]             @relation("GroupLeader")
+    ledMinistries     Ministry[]          @relation("MinistryLeader")
 }
 
 model Family {
@@ -116,7 +114,7 @@ model Group {
     description String?
     type        GroupType
     leaderId    String?
-    leader      Member?   @relation(fields: [leaderId], references: [id])
+    leader      Member?   @relation("GroupLeader", fields: [leaderId], references: [id])
 
     members  MemberGroup[]
     meetings GroupMeeting[]
@@ -195,7 +193,7 @@ model Ministry {
     name        String
     description String?
     leaderId    String?
-    leader      Member? @relation(fields: [leaderId], references: [id])
+    leader      Member? @relation("MinistryLeader", fields: [leaderId], references: [id])
 
     members   MemberMinistry[]
     donations Donation[]
@@ -414,12 +412,10 @@ model CheckIn {
     isVisitor    Boolean   @default(false)
 
     event  Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-    member Member? @relation(fields: [memberId], references: [id])
+    member Member? @relation("CheckInPerformer", fields: [memberId], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-    Member    Member?  @relation(fields: [memberId], references: [id])
-    Member    Member?  @relation(fields: [memberId], references: [id])
 }
 
 enum EventType {
