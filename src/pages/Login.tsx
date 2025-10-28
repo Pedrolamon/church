@@ -33,7 +33,7 @@ export default function LoginPage({ className }: LoginPageProps) {
     try {
       await login(email, password)
 
-      navigate("/dashboard")
+      navigate("/")
     } catch (err) {
       if (err instanceof Error) {
       setError(err.message);
