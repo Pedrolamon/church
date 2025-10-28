@@ -94,3 +94,5 @@ router.get("/me", authenticateJWT,async (req: authRequest, res:Response) =>{
 router.post("/logout", authenticateJWT, async (req:Request, res: Response)=> {
     return res.status(200).json({message: "logout."});
 });
+
+export default router

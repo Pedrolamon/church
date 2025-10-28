@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
+//routes
+import authRoutes from "./routes/auth";
 import memberRoutes from './routes/members.js';
 import familyRoutes from './routes/families.js';
 import groupRoutes from './routes/groups.ts';
@@ -20,6 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use('/api/members', memberRoutes);
 app.use('/api/families', familyRoutes);
 app.use('/api/groups', groupRoutes);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '../hooks/use-auth';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -7,9 +8,9 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuth } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuth) {
     return null;
   }
 
@@ -18,7 +19,7 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="shrink-0 flex items-center">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700"

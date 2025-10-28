@@ -19,8 +19,6 @@ interface RegisterFormData {
   email: string;
   password: string;
   role: string;
-  phone: string;
-  referralCode?: string
 }
 
 export default function Register() 
@@ -29,9 +27,7 @@ export default function Register()
     name: '',
     email: '',
     password: '',
-    role: '',
-    phone: '',
-    referralCode: '',
+    role: 'MEMBER',
   });
 
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -60,12 +56,10 @@ export default function Register()
           name: '',
           email: '',
           password: '',
-          role: '',
-          phone: '',
-          referralCode: '',
+          role: 'MEMBER',
         });
         setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/');
       }, 1500);
     } catch (error) {
       console.error('Erro durante o cadastro:', error);
@@ -146,33 +140,13 @@ export default function Register()
                     onChange={handleChange}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <option value="barber">Barber</option>
-                    <option value="client">Client</option>
                     <option value="ADMIN">Administrator</option>
+                    <option value="PASTOR">Pastor</option>
+                    <option value="LEADER">Lider</option>
+                    <option value="MEMBER">Menbro</option>
+
                   </select>
                 </div>
-
-                <div className="grid gap-3">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                  />
-                </div>
-                 
-                <div className="grid gap-3">
-                <Label htmlFor="referralCode">Referral Code (optional)</Label>
-                <Input
-                  id="referralCode"
-                  name="referralCode"
-                  value={formData.referralCode}
-                  onChange={handleChange}
-                  placeholder="Digite o código de indicação"
-                />
-              </div>
 
                 <Button
                   type="submit"
