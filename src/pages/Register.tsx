@@ -1,183 +1,209 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useAuth } from '../hooks/use-auth';
+"use client";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const registerSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
-  confirmPassword: z.string(),
-  role: z.enum(['admin', 'pastor', 'lider', 'membro']),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'As senhas não coincidem',
-  path: ['confirmPassword'],
-});
 
-type RegisterForm = z.infer<typeof registerSchema>;
+// Shadcn/ui
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 
-const Register = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { register: registerUser } = useAuth();
+//classes do Tailwind
+import { cn } from "../lib/utils";
 
-  const form = useForm<RegisterForm>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      role: 'membro',
-    },
+import { Authregister } from '../api/auth/auth-register';
+
+interface RegisterFormData {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+  phone: string;
+  referralCode?: string
+}
+
+export default function Register() 
+ {
+  const [formData, setFormData] = useState<RegisterFormData>({
+    name: '',
+    email: '',
+    password: '',
+    role: '',
+    phone: '',
+    referralCode: '',
   });
 
-  const onSubmit = async (data: RegisterForm) => {
-    setIsLoading(true);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+ 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); 
+    setLoading(true);
+    setMessage(null);
+
     try {
-      await registerUser({
-        name: data.name,
-        email: data.email,
-        role: data.role,
-        password: data.password,
-      });
-      navigate('/');
+     const response = await Authregister(formData)
+        setMessage({ type: 'success', text: response.message || 'Registration completed successfully!' });
+        setFormData({
+          name: '',
+          email: '',
+          password: '',
+          role: '',
+          phone: '',
+          referralCode: '',
+        });
+        setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
     } catch (error) {
-      console.error('Register error:', error);
-      // TODO: Show error message to user
+      console.error('Erro durante o cadastro:', error);
+      setMessage({ type: 'error', text: 'Network error or server unavailable. Please try again later..' });
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Sistema Igrejas</CardTitle>
-          <CardDescription className="text-center">
-            Crie sua conta para acessar o sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome Completo</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Seu nome completo"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+    <div>
+    <div className="flex min-h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-900 font-sans p-4">
+      <div className="w-full max-w-2xl">
+        <Card className="overflow-hidden p-0">
+          <CardContent className="grid p-0 md:grid-cols-2">
+            <div className="p-6 md:p-8">
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="flex flex-col items-center text-center">
+                  <h1 className="text-2xl font-bold">Crie sua conta</h1>
+                  <p className="text-muted-foreground text-balance">
+                    Sign up for full access
+                  </p>
+                </div>
+                
+                {message && (
+                  <div
+                    className={cn(
+                      "p-3 rounded-md text-sm",
+                      message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    )}
+                  >
+                    {message.text}
+                  </div>
                 )}
+                
+                <div className="grid gap-3">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+
+                <div className="grid gap-3">
+                  <Label htmlFor="email">E-mail</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="role">Role</Label>
+                  <select
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="barber">Barber</option>
+                    <option value="client">Client</option>
+                    <option value="ADMIN">Administrator</option>
+                  </select>
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                </div>
+                 
+                <div className="grid gap-3">
+                <Label htmlFor="referralCode">Referral Code (optional)</Label>
+                <Input
+                  id="referralCode"
+                  name="referralCode"
+                  value={formData.referralCode}
+                  onChange={handleChange}
+                  placeholder="Digite o código de indicação"
+                />
+              </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {loading ? 'Registering...' : 'Register'}
+                </Button>
+                
+                <div className="text-center text-sm">
+                  Already have an account?
+                  {" "}
+                  <a href="/login" className="underline underline-offset-4">
+                    Enter
+                  </a>
+                </div>
+              </form>
+            </div>
+            
+            <div className="bg-muted relative hidden md:block">
+              <img
+                src="https://placehold.co/1000x1000/E2E8F0/1E293B?text=Welcome"
+                alt="Imagem de fundo"
+                className="absolute inset-0 h-full w-full object-cover rounded-tr-xl rounded-br-xl dark:brightness-[0.2] dark:grayscale"
               />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="seu@email.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="role"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de Usuário</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                      >
-                        <option value="membro">Membro</option>
-                        <option value="lider">Líder</option>
-                        <option value="pastor">Pastor</option>
-                        <option value="admin">Administrador</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Senha</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirmar Senha</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Criando conta...' : 'Criar Conta'}
-              </Button>
-            </form>
-          </Form>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              Já tem uma conta?{' '}
-              <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                Faça login
-              </Link>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
     </div>
   );
 };
 
-export default Register;

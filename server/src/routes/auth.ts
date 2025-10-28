@@ -4,6 +4,7 @@ import {Router, Request,Response} from "express"
 import { PrismaClient, UserRole } from "@prisma/client"
 import { authRequest, authenticateJWT } from "../middleware/auth"
 
+
 const router = Router()
 const prisma = new PrismaClient()
 
@@ -88,4 +89,8 @@ router.get("/me", authenticateJWT,async (req: authRequest, res:Response) =>{
         console.error("Error fetching user data:", error);
         return res.status(500).json({ message: "Erro ao buscar os dados do usuário." });
     }
-})
+});
+
+router.post("/logout", authenticateJWT, async (req:Request, res: Response)=> {
+    return res.status(200).json({message: "logout."});
+});
