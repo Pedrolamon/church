@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface InventoryCategory {
   id: string;
@@ -106,10 +106,10 @@ const Inventory: React.FC = () => {
   const fetchData = async () => {
     try {
       const [categoriesRes, itemsRes, movementsRes, membersRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/inventory/categories'),
-        axios.get('http://localhost:3001/api/inventory/items'),
-        axios.get('http://localhost:3001/api/inventory/movements'),
-        axios.get('http://localhost:3001/api/members')
+        api.get('/api/inventory/categories'),
+        api.get('/api/inventory/items'),
+        api.get('/api/inventory/movements'),
+        api.get('/api/members')
       ]);
 
       setCategories(categoriesRes.data);

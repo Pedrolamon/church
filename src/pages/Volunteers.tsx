@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface ServiceArea {
   id: string;
@@ -87,9 +87,9 @@ const Volunteers: React.FC = () => {
   const fetchData = async () => {
     try {
       const [areasRes, volunteersRes, membersRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/volunteers/service-areas'),
-        axios.get('http://localhost:3001/api/volunteers'),
-        axios.get('http://localhost:3001/api/members')
+        api.get('/api/volunteers/service-areas'),
+        api.get('/api/volunteers'),
+        api.get('/api/members')
       ]);
 
       setServiceAreas(areasRes.data);
@@ -105,7 +105,7 @@ const Volunteers: React.FC = () => {
   const handleAreaSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/api/volunteers/service-areas', areaForm);
+      await api.post('/api/volunteers/service-areas', areaForm);
       fetchData();
       setShowAreaForm(false);
       resetAreaForm();
@@ -123,7 +123,7 @@ const Volunteers: React.FC = () => {
         skills: volunteerForm.skills
       };
 
-      await axios.post('http://localhost:3001/api/volunteers', volunteerData);
+      await api.post('/api/volunteers', volunteerData);
       fetchData();
       setShowVolunteerForm(false);
       resetVolunteerForm();

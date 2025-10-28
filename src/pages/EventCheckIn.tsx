@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface Event {
   id: string;
@@ -58,7 +58,7 @@ const EventCheckIn: React.FC = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/communication/events');
+      const response = await api.get('/communication/events');
       // Filter events that are happening today or in the future
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -77,7 +77,7 @@ const EventCheckIn: React.FC = () => {
 
   const fetchMembers = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/members');
+      const response = await api.get('/members');
       setMembers(response.data);
     } catch (error) {
       console.error('Error fetching members:', error);
@@ -88,7 +88,7 @@ const EventCheckIn: React.FC = () => {
 
   const fetchCheckIns = async (eventId: string) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/communication/events/${eventId}/checkins`);
+      const response = await api.get(`/communication/events/${eventId}/checkins`);
       setCheckIns(response.data);
     } catch (error) {
       console.error('Error fetching check-ins:', error);
@@ -99,7 +99,7 @@ const EventCheckIn: React.FC = () => {
     if (!selectedEvent) return;
 
     try {
-      await axios.post(`http://localhost:3001/api/communication/events/${selectedEvent.id}/checkin`, {
+      await api.post(`/communication/events/${selectedEvent.id}/checkin`, {
         memberId,
         checkedInBy: '1', // Current user ID
         notes: ''
@@ -115,7 +115,7 @@ const EventCheckIn: React.FC = () => {
     if (!selectedEvent) return;
 
     try {
-      await axios.post(`http://localhost:3001/api/communication/events/${selectedEvent.id}/checkin`, {
+      await api.post(`/api/communication/events/${selectedEvent.id}/checkin`, {
         visitorName: visitorForm.name,
         checkedInBy: '1', // Current user ID
         notes: visitorForm.notes
@@ -132,7 +132,7 @@ const EventCheckIn: React.FC = () => {
     if (!selectedEvent) return;
 
     try {
-      await axios.put(`http://localhost:3001/api/communication/events/${selectedEvent.id}/checkin/${checkInId}/checkout`);
+      await api.put(`/api/communication/events/${selectedEvent.id}/checkin/${checkInId}/checkout`);
       fetchCheckIns(selectedEvent.id);
     } catch (error) {
       console.error('Error checking out:', error);

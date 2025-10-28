@@ -1,4 +1,5 @@
 import React from 'react';
+import { api } from '@/lib/api';
 
 const FamilyTree: React.FC = () => {
   return (

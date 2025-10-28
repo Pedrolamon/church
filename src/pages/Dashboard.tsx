@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface DashboardStats {
   totalMembers: number;
@@ -21,10 +21,10 @@ const Dashboard: React.FC = () => {
     const fetchStats = async () => {
       try {
         const [membersRes, familiesRes, groupsRes, ministriesRes] = await Promise.all([
-          axios.get('http://localhost:3001/api/members'),
-          axios.get('http://localhost:3001/api/families'),
-          axios.get('http://localhost:3001/api/groups'),
-          axios.get('http://localhost:3001/api/ministries')
+          api.get('/members'),
+          api.get('/families'),
+          api.get('/groups'),
+          api.get('/ministries')
         ]);
 
         setStats({

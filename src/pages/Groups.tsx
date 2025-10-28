@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface Group {
   id: string;
@@ -101,9 +101,9 @@ const Groups: React.FC = () => {
   const fetchData = async () => {
     try {
       const [groupsRes, meetingsRes, membersRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/groups'),
-        axios.get('http://localhost:3001/api/groups/meetings'),
-        axios.get('http://localhost:3001/api/members')
+        api.get('/api/groups'),
+        api.get('/api/groups/meetings'),
+        api.get('/api/members')
       ]);
 
       setGroups(groupsRes.data);
@@ -120,9 +120,9 @@ const Groups: React.FC = () => {
     e.preventDefault();
     try {
       if (selectedGroup) {
-        await axios.put(`http://localhost:3001/api/groups/${selectedGroup.id}`, groupForm);
+        await api.put(`/api/groups/${selectedGroup.id}`, groupForm);
       } else {
-        await axios.post('http://localhost:3001/api/groups', groupForm);
+        await api.post('/api/groups', groupForm);
       }
       fetchData();
       setShowGroupForm(false);
@@ -141,9 +141,9 @@ const Groups: React.FC = () => {
       };
 
       if (selectedMeeting) {
-        await axios.put(`http://localhost:3001/api/groups/meetings/${selectedMeeting.id}`, meetingData);
+        await api.put(`/api/groups/meetings/${selectedMeeting.id}`, meetingData);
       } else {
-        await axios.post(`http://localhost:3001/api/groups/${meetingForm.groupId}/meetings`, meetingData);
+        await api.post(`/api/groups/${meetingForm.groupId}/meetings`, meetingData);
       }
       fetchData();
       setShowMeetingForm(false);
@@ -155,7 +155,7 @@ const Groups: React.FC = () => {
 
   const handleQuickAttendance = async (meetingId: string) => {
     try {
-      await axios.post(`http://localhost:3001/api/groups/meetings/${meetingId}/quick-attendance`, attendanceForm);
+      await api.post(`/api/groups/meetings/${meetingId}/quick-attendance`, attendanceForm);
       fetchData();
       setShowAttendanceModal(false);
       resetAttendanceForm();

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface Donation {
   id: string;
@@ -78,11 +78,11 @@ const Finances: React.FC = () => {
   const fetchData = async () => {
     try {
       const [donationsRes, expensesRes, summaryRes, membersRes, ministriesRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/finances/donations'),
-        axios.get('http://localhost:3001/api/finances/expenses'),
-        axios.get('http://localhost:3001/api/finances/reports/summary'),
-        axios.get('http://localhost:3001/api/members'),
-        axios.get('http://localhost:3001/api/ministries')
+        api.get('/api/finances/donations'),
+        api.get('/api/finances/expenses'),
+        api.get('/api/finances/reports/summary'),
+        api.get('/api/members'),
+        api.get('/api/ministries')
       ]);
 
       setDonations(donationsRes.data);
@@ -100,7 +100,7 @@ const Finances: React.FC = () => {
   const handleDonationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/api/finances/donations', {
+      await api.post('/api/finances/donations', {
         ...donationForm,
         amount: parseFloat(donationForm.amount)
       });
@@ -115,7 +115,7 @@ const Finances: React.FC = () => {
   const handleExpenseSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/api/finances/expenses', {
+      await api.post('/api/finances/expenses', {
         ...expenseForm,
         amount: parseFloat(expenseForm.amount)
       });
