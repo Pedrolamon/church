@@ -5,7 +5,7 @@ import Navbar from './Navbar';
 
 
 
-export default function Layout() {
+export function sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
