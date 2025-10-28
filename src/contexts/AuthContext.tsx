@@ -1,5 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { AuthLogin } from '../api/auth/auth-login';
+import { api } from '../lib/api';
+import { AUTH_TOKEN_CONSTANT } from '../constants/auth-token-constants';
+import { AuthMe } from '../api/auth/auth-me';
+
 
 export type UserRole = 'admin' | 'pastor' | 'lider' | 'membro';
 
@@ -11,15 +16,24 @@ export interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user?: User;
   login: (email: string, password: string) => Promise<void>;
-  register: (userData: Omit<User, 'id'> & { password: string }) => Promise<void>;
   logout: () => void;
-  isAuthenticated: boolean;
+  isAuth: boolean;
+  isLoading: boolean;
   hasPermission: (requiredRole: UserRole) => boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const DEFAULT_VALUE: AuthContextType = {
+  isAuth: false,
+  isLoading: true,
+  login: async () => { },
+  logout: async () => { },
+  user: undefined,
+  hasPermission: () => false
+} as const
+
+export const AuthContext = createContext<AuthContextType>(DEFAULT_VALUE);
 
 const roleHierarchy: Record<UserRole, number> = {
   membro: 1,
@@ -29,89 +43,89 @@ const roleHierarchy: Record<UserRole, number> = {
 };
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  
+  const [user, setUser] = useState<AuthContextType["user"]>(DEFAULT_VALUE.user);
+  const [isAuth, setIsAuth] = useState<boolean>(DEFAULT_VALUE.isAuth);
+  const [isLoading, setIsLoading] = useState<boolean>(DEFAULT_VALUE.isLoading);
 
-  useEffect(() => {
-    // Check for stored user data on app load
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('user');
-      }
-    }
-  }, []);
+// Hooks
 
-  const login = async (email: string, password: string) => {
-    // TODO: Replace with actual API call
-    console.log('Login attempt:', { email, password });
+const logout = async () => {
+  setUser(undefined);
+  setIsAuth(false);
+  setIsLoading(false);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mock user data - in real app, this would come from API
-    const mockUser: User = {
-      id: '1',
-      name: 'João Silva',
-      email: email,
-      role: 'admin', // Default to admin for demo
-    };
-
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-  };
-
-  const register = async (userData: Omit<User, 'id'> & { password: string }) => {
-    // TODO: Replace with actual API call
-    console.log('Register attempt:', userData);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    // Mock user creation - in real app, this would come from API
-    const newUser: User = {
-      id: Date.now().toString(),
-      name: userData.name,
-      email: userData.email,
-      role: userData.role,
-    };
-
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-  };
-
-  const hasPermission = (requiredRole: UserRole): boolean => {
-    if (!user) return false;
-    return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
-  };
-
-  const value: AuthContextType = {
-    user,
-    login,
-    register,
-    logout,
-    isAuthenticated: !!user,
-    hasPermission,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  localStorage.removeItem(AUTH_TOKEN_CONSTANT);
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+const login: AuthContextType["login"] = async (email, password) => {
+  if (!email || !password) {
+    throw new Error("E-mail and password are required.")
   }
-  return context;
+
+  const { user, token } = await AuthLogin({ email, password })
+
+  setUser(user)
+  setIsAuth(true)
+
+  localStorage.setItem(AUTH_TOKEN_CONSTANT, token)
+  api.defaults.headers["Authorization"] = `Bearer ${token}`
+
+};
+
+const checkSession = async () => {
+  try {
+    const user = await AuthMe()
+
+    if(!user) {
+      throw new Error("User not found")
+    }
+
+    setUser(user)
+    setIsAuth(true)
+  } catch {
+    console.error("❌ checkSession falhou:")
+    logout()
+  } finally {
+    setIsLoading(false)
+  }
+}
+
+const hasPermission = (requiredRole: UserRole): boolean => {
+  if (!user) return false; 
+  return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
+};
+
+useEffect(() => {
+  setIsLoading(true)
+
+  // Check if token exists
+  const token = localStorage.getItem(AUTH_TOKEN_CONSTANT)
+
+  // If it doesn't exist, means the user is not auth, just ignore
+  if(!token) {
+    setIsLoading(false)
+
+    return // Continue
+  }
+
+  api.defaults.headers["Authorization"] = `Bearer ${token}`
+  
+  checkSession()
+}, []);
+
+return (
+  <AuthContext.Provider value={
+    {
+      isAuth,
+      isLoading,
+      login,
+      logout,
+      user,
+      hasPermission
+    }
+  }>
+    {children}
+  </AuthContext.Provider>
+);
 };

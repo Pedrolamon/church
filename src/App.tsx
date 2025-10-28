@@ -1,5 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
+
+//pages
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
@@ -15,11 +17,15 @@ import Volunteers from './pages/Volunteers';
 import Inventory from './pages/Inventory';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import { useAuth } from './contexts/AuthContext';
+
+//hooks 
+import { useAuth } from './hooks/use-auth';
+
+
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuth } = useAuth();
 
   return (
     <Router>
