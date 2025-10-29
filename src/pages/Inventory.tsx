@@ -126,7 +126,7 @@ const Inventory: React.FC = () => {
   const handleCategorySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/api/inventory/categories', categoryForm);
+      await api.post('/api/inventory/categories', categoryForm);
       fetchData();
       setShowCategoryForm(false);
       resetCategoryForm();
@@ -138,7 +138,7 @@ const Inventory: React.FC = () => {
   const handleItemSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:3001/api/inventory/items', itemForm);
+      await api.post('/api/inventory/items', itemForm);
       fetchData();
       setShowItemForm(false);
       resetItemForm();
@@ -152,7 +152,7 @@ const Inventory: React.FC = () => {
     if (!selectedItem) return;
 
     try {
-      await axios.post(`http://localhost:3001/api/inventory/items/${selectedItem.id}/movements`, movementForm);
+      await api.post(`/api/inventory/items/${selectedItem.id}/movements`, movementForm);
       fetchData();
       setShowMovementForm(false);
       resetMovementForm();

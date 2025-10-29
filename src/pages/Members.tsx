@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from '@/lib/api';
 
 interface Member {
   id: string;
@@ -43,7 +43,7 @@ const Members: React.FC = () => {
 
   const fetchMembers = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/members');
+      const response = await api.get('/api/members');
       setMembers(response.data);
     } catch (error) {
       console.error('Error fetching members:', error);
@@ -56,9 +56,9 @@ const Members: React.FC = () => {
     e.preventDefault();
     try {
       if (editingMember) {
-        await axios.put(`http://localhost:3001/api/members/${editingMember.id}`, formData);
+        await api.put(`/api/members/${editingMember.id}`, formData);
       } else {
-        await axios.post('http://localhost:3001/api/members', formData);
+        await api.post('/api/members', formData);
       }
       fetchMembers();
       setShowForm(false);
@@ -89,7 +89,7 @@ const Members: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este membro?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/members/${id}`);
+        await api.delete(`/api/members/${id}`);
         fetchMembers();
       } catch (error) {
         console.error('Error deleting member:', error);

@@ -57,6 +57,7 @@ router.post("/login", async (req: Request, res: Response)=>{
         return res.status(400).json({message: "invalid credentials"})
     }
 
+    const isPasswordValid = await brcript.compare(password, user.password)
     if(!password){
         return res.status(400).json({messge: "invalid credentials"})
     }
