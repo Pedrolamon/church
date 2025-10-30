@@ -13,6 +13,7 @@ import Volunteers from '../pages/Volunteers';
 import Inventory from '../pages/Inventory';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
+import Page404 from "../pages/Page404"
 
 //helpers
 import { AuthRoute } from '@/helpers/authRoute'; 
@@ -31,12 +32,17 @@ const publicRoutes = [
         path:"/register",
         element:<Register /> 
     },
+   
 ] as const;
 
 const authRoute = [
     {
         path:"/",
         element:<Dashboard/>
+    },
+    {
+        path:"*",
+        element:<Page404/>
     },
     {
         path:"/members",

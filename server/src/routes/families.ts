@@ -19,6 +19,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/families/:id - Get family by ID
+//acha uma famila em especifico 
 router.get('/:id', async (req, res) => {
   try {
     const family = await prisma.family.findUnique({

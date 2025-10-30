@@ -101,9 +101,9 @@ const Groups: React.FC = () => {
   const fetchData = async () => {
     try {
       const [groupsRes, meetingsRes, membersRes] = await Promise.all([
-        api.get('/api/groups'),
-        api.get('/api/groups/meetings'),
-        api.get('/api/members')
+        api.get('/groups'),
+        api.get('/groups/meetings'),
+        api.get('/members')
       ]);
 
       setGroups(groupsRes.data);
@@ -120,9 +120,9 @@ const Groups: React.FC = () => {
     e.preventDefault();
     try {
       if (selectedGroup) {
-        await api.put(`/api/groups/${selectedGroup.id}`, groupForm);
+        await api.put(`/groups/${selectedGroup.id}`, groupForm);
       } else {
-        await api.post('/api/groups', groupForm);
+        await api.post('/groups', groupForm);
       }
       fetchData();
       setShowGroupForm(false);
@@ -141,9 +141,9 @@ const Groups: React.FC = () => {
       };
 
       if (selectedMeeting) {
-        await api.put(`/api/groups/meetings/${selectedMeeting.id}`, meetingData);
+        await api.put(`/groups/meetings/${selectedMeeting.id}`, meetingData);
       } else {
-        await api.post(`/api/groups/${meetingForm.groupId}/meetings`, meetingData);
+        await api.post(`/groups/${meetingForm.groupId}/meetings`, meetingData);
       }
       fetchData();
       setShowMeetingForm(false);
@@ -155,7 +155,7 @@ const Groups: React.FC = () => {
 
   const handleQuickAttendance = async (meetingId: string) => {
     try {
-      await api.post(`/api/groups/meetings/${meetingId}/quick-attendance`, attendanceForm);
+      await api.post(`/groups/meetings/${meetingId}/quick-attendance`, attendanceForm);
       fetchData();
       setShowAttendanceModal(false);
       resetAttendanceForm();

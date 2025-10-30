@@ -74,7 +74,17 @@ const login: AuthContextType["login"] = async (email, password) => {
 };
 
 const checkSession = async () => {
+  
+  const token = localStorage.getItem(AUTH_TOKEN_CONSTANT);
+    console.log("🔑 Ponto A (AuthContext): Token lido do localStorage:", token ? 'Existe' : 'NÃO existe');
+
+    if (!token) {
+        setIsLoading(false);
+        return;
+    }
+
   try {
+    console.log("🔑 Ponto B (AuthContext): Tentando chamar AuthMe() com o token...");
     const user = await AuthMe()
 
     if(!user) {

@@ -8,7 +8,13 @@ type AuthRouteProps = {
 };
 
 export function AuthRoute({ children }: AuthRouteProps) {
-  const { isAuth } = useAuth();
+  const { isAuth, isLoading } = useAuth();
+
+  if(isLoading){
+    return(
+      <div className="bg-red-900 text-9xl">verificando a sessão</div>
+    )
+  }
 
   if (!isAuth) {
     return <Navigate to="/login" replace />;

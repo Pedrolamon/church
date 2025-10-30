@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma } from '../index.js';
 
+
 const router = Router();
 
 // GET /api/groups/meetings - Get all group meetings
@@ -303,7 +304,7 @@ router.post('/meetings/:meetingId/quick-attendance', async (req, res) => {
       return res.status(404).json({ error: 'Meeting not found' });
     }
 
-    const attendanceRecords = [];
+    const attendanceRecords: any[] = [];
 
     // Record attendance for all group members
     for (const groupMember of meeting.group.members) {
@@ -336,6 +337,7 @@ router.post('/meetings/:meetingId/quick-attendance', async (req, res) => {
           member: true
         }
       });
+      
 
       attendanceRecords.push(attendance);
     }
