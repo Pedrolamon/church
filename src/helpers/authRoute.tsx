@@ -12,7 +12,7 @@ export function AuthRoute({ children }: AuthRouteProps) {
 
   if(isLoading){
     return(
-      <div className="bg-red-900 text-9xl">verificando a sessão</div>
+      <div >verificando a sessão</div>
     )
   }
 

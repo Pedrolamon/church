@@ -5,7 +5,6 @@ import Members from '../pages/Members';
 import Families from '../pages/Families';
 import Groups from '../pages/Groups';
 import Ministries from '../pages/Ministries';
-import FamilyTree from '../pages/FamilyTree';
 import Finances from '../pages/Finances';
 import Communication from '../pages/Communication';
 import EventCheckIn from '../pages/EventCheckIn';
@@ -95,10 +94,6 @@ const authRoute = [
     {
         path:"/checkin",
         element:<EventCheckIn />
-    },
-    {
-        path:"/family-tree",
-        element:<FamilyTree />
     },
 ];
                 
