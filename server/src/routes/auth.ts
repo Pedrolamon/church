@@ -2,7 +2,7 @@ import brcript from "bcrypt"
 import jwt, {Secret, SignOptions} from "jsonwebtoken"
 import {Router, Request,Response} from "express"
 import { PrismaClient, UserRole } from "@prisma/client"
-import { authRequest, authenticateJWT } from "../middleware/auth"
+import { AuthRequest, authenticateJWT } from "../middleware/auth"
 
 
 const router = Router()
@@ -70,7 +70,7 @@ router.post("/login", async (req: Request, res: Response)=>{
     return res.json({token, user:{id: user.id, name: user.name, email: user.email, role: user.role}})
 });
 
-router.get("/me", authenticateJWT,async (req: authRequest, res:Response) =>{
+router.get("/me", authenticateJWT,async (req: AuthRequest, res:Response) =>{
     try {
 
         if (!req.userId || typeof req.userId !== 'string') {

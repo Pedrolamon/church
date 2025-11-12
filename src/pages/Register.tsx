@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+//img
+import logo from "../img/logo.png"
 
 // Shadcn/ui
 import { Button } from "../components/ui/button";
@@ -150,7 +152,7 @@ export default function Register()
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full border"
                   disabled={loading}
                 >
                   {loading ? 'Registering...' : 'Register'}
@@ -168,7 +170,7 @@ export default function Register()
             
             <div className="bg-muted relative hidden md:block">
               <img
-                src="https://placehold.co/1000x1000/E2E8F0/1E293B?text=Welcome"
+                src={logo}
                 alt="Imagem de fundo"
                 className="absolute inset-0 h-full w-full object-cover rounded-tr-xl rounded-br-xl dark:brightness-[0.2] dark:grayscale"
               />

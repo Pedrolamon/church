@@ -62,8 +62,16 @@ router.get('/:id', async (req, res) => {
 // POST /api/members - Create new member
 router.post('/', async (req, res) => {
   try {
+    const {birthDate, baptismDate,familyId, consecrationDate, ...rest} = req.body
+
     const member = await prisma.member.create({
-      data: req.body,
+      data:{
+        ...rest,
+        birthDate: birthDate ? new Date(birthDate) :null,
+        baptismDate: baptismDate ? new Date(baptismDate) : null,
+        consecrationDate: consecrationDate ? new Date(consecrationDate): null,
+        familyId: familyId || null,
+      },
       include: {
         family: true,
         groups: {

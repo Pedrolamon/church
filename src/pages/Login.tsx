@@ -1,4 +1,5 @@
 "use client";
+import logo from "../img/logo.png"
 
 
 import { useState } from "react";
@@ -96,12 +97,12 @@ export default function LoginPage({ className }: LoginPageProps) {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full border"
                   disabled={loading}
                 >
                   {loading ? "Loading..." : "Enter"}
                 </Button>
-                <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+                <div className="border-b border-border text-center text-sm pb-1">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">
                     Or continue with
                   </span>
@@ -146,7 +147,7 @@ export default function LoginPage({ className }: LoginPageProps) {
               </div>
             </form>
             <div className="hidden items-center justify-center md:flex">
-              <img />
+              <img src={logo} alt="company logo" />
             </div>
           </CardContent>
         </Card>
