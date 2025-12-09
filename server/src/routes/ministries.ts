@@ -84,7 +84,7 @@ router.put('/:id', async (req, res) => {
     });
     res.json(ministry);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Ministry not found' });
     }
     res.status(500).json({ error: 'Failed to update ministry' });
@@ -99,7 +99,7 @@ router.delete('/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Ministry not found' });
     }
     res.status(500).json({ error: 'Failed to delete ministry' });
@@ -139,7 +139,7 @@ router.delete('/:id/members/:memberId', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Member not found in ministry' });
     }
     res.status(500).json({ error: 'Failed to remove member from ministry' });

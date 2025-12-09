@@ -30,7 +30,7 @@ router.post('/categories', async (req, res) => {
     });
     res.status(201).json(category);
   } catch (error) {
-    if (error.code === 'P2002') {
+    if ((error as { code: string }).code === 'P2002') {
       return res.status(400).json({ error: 'Category name already exists' });
     }
     res.status(500).json({ error: 'Failed to create category' });
@@ -46,7 +46,7 @@ router.put('/categories/:id', async (req, res) => {
     });
     res.json(category);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Category not found' });
     }
     res.status(500).json({ error: 'Failed to update category' });
@@ -61,7 +61,7 @@ router.delete('/categories/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Category not found' });
     }
     res.status(500).json({ error: 'Failed to delete category' });
@@ -176,7 +176,7 @@ router.put('/items/:id', async (req, res) => {
 
     res.json(item);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Item not found' });
     }
     res.status(500).json({ error: 'Failed to update item' });
@@ -191,7 +191,7 @@ router.delete('/items/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Item not found' });
     }
     res.status(500).json({ error: 'Failed to delete item' });

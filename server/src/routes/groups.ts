@@ -113,7 +113,7 @@ router.put('/meetings/:meetingId', async (req, res) => {
 
     res.json(meeting);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Meeting not found' });
     }
     res.status(500).json({ error: 'Failed to update meeting' });
@@ -128,7 +128,7 @@ router.delete('/meetings/:meetingId', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Meeting not found' });
     }
     res.status(500).json({ error: 'Failed to delete meeting' });
@@ -159,7 +159,7 @@ router.post('/meetings/:meetingId/attendance', async (req, res) => {
 
     res.status(201).json(attendance);
   } catch (error) {
-    if (error.code === 'P2002') {
+    if ((error as { code: string }).code === 'P2002') {
       return res.status(400).json({ error: 'Attendance already recorded for this member' });
     }
     res.status(500).json({ error: 'Failed to record attendance' });
@@ -194,7 +194,7 @@ router.put('/meetings/:meetingId/attendance/:memberId', async (req, res) => {
 
     res.json(attendance);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Attendance record not found' });
     }
     res.status(500).json({ error: 'Failed to update attendance' });
@@ -214,7 +214,7 @@ router.delete('/meetings/:meetingId/attendance/:memberId', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Attendance record not found' });
     }
     res.status(500).json({ error: 'Failed to remove attendance' });

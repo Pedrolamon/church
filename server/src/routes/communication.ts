@@ -67,7 +67,7 @@ router.put('/messages/:id', async (req, res) => {
     });
     res.json(message);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Message not found' });
     }
     res.status(500).json({ error: 'Failed to update message' });
@@ -82,7 +82,7 @@ router.delete('/messages/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Message not found' });
     }
     res.status(500).json({ error: 'Failed to delete message' });
@@ -198,7 +198,7 @@ router.put('/events/:id', async (req, res) => {
     });
     res.json(event);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Event not found' });
     }
     res.status(500).json({ error: 'Failed to update event' });
@@ -213,7 +213,7 @@ router.delete('/events/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Event not found' });
     }
     res.status(500).json({ error: 'Failed to delete event' });
@@ -260,7 +260,7 @@ router.put('/events/:id/attendees/:memberId', async (req, res) => {
     });
     res.json(attendee);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Attendee not found' });
     }
     res.status(500).json({ error: 'Failed to update attendee status' });
@@ -280,7 +280,7 @@ router.delete('/events/:id/attendees/:memberId', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Attendee not found' });
     }
     res.status(500).json({ error: 'Failed to remove attendee' });
@@ -358,7 +358,7 @@ router.post('/events/:id/register', async (req, res) => {
 
     res.status(201).json(registration);
   } catch (error) {
-    if (error.code === 'P2002') {
+    if ((error as { code: string }).code === 'P2002') {
       return res.status(400).json({ error: 'Already registered for this event' });
     }
     res.status(500).json({ error: 'Failed to register for event' });

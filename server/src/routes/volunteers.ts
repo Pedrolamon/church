@@ -66,7 +66,7 @@ router.post('/service-areas', async (req, res) => {
     });
     res.status(201).json(serviceArea);
   } catch (error) {
-    if (error.code === 'P2002') {
+    if ((error as { code: string }).code === 'P2002') {
       return res.status(400).json({ error: 'Service area name already exists' });
     }
     res.status(500).json({ error: 'Failed to create service area' });
@@ -85,7 +85,7 @@ router.put('/service-areas/:id', async (req, res) => {
     });
     res.json(serviceArea);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Service area not found' });
     }
     res.status(500).json({ error: 'Failed to update service area' });
@@ -100,7 +100,7 @@ router.delete('/service-areas/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Service area not found' });
     }
     res.status(500).json({ error: 'Failed to delete service area' });
@@ -195,7 +195,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json(volunteer);
   } catch (error) {
-    if (error.code === 'P2002') {
+    if ((error as { code: string }).code === 'P2002') {
       return res.status(400).json({ error: 'Member is already registered for this service area' });
     }
     res.status(500).json({ error: 'Failed to register volunteer' });
@@ -227,7 +227,7 @@ router.put('/:id', async (req, res) => {
 
     res.json(volunteer);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Volunteer not found' });
     }
     res.status(500).json({ error: 'Failed to update volunteer' });
@@ -242,7 +242,7 @@ router.delete('/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Volunteer not found' });
     }
     res.status(500).json({ error: 'Failed to remove volunteer' });
@@ -305,7 +305,7 @@ router.put('/:id/assignments/:assignmentId', async (req, res) => {
 
     res.json(assignment);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Assignment not found' });
     }
     res.status(500).json({ error: 'Failed to update assignment' });
@@ -320,7 +320,7 @@ router.delete('/:id/assignments/:assignmentId', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Assignment not found' });
     }
     res.status(500).json({ error: 'Failed to delete assignment' });

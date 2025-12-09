@@ -114,7 +114,7 @@ router.put('/:id', async (req, res) => {
     });
     res.json(member);
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Member not found' });
     }
     res.status(500).json({ error: 'Failed to update member' });
@@ -129,7 +129,7 @@ router.delete('/:id', async (req, res) => {
     });
     res.status(204).send();
   } catch (error) {
-    if (error.code === 'P2025') {
+    if ((error as { code: string }).code === 'P2025') {
       return res.status(404).json({ error: 'Member not found' });
     }
     res.status(500).json({ error: 'Failed to delete member' });
