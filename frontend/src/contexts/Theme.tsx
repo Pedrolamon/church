@@ -1,9 +1,8 @@
 import { useState, useEffect, useContext,createContext } from "react";
 import type { ReactNode } from "react";
 
-type Theme ="light" | "Dark"
+type Theme ="light" | "dark"
 
-//pq o toggleTheme
 interface ThemeContextType {
     theme: Theme;
     toggleTheme: () => void;
@@ -18,13 +17,13 @@ export const ThemeProvider = ({children}: {children: ReactNode}) =>{
 
     useEffect(() => {
         const root = window.document.documentElement;
-        root.classList.remove(theme === "light" ? "Dark" : "light");
+        root.classList.remove(theme === "light" ? "dark" : "light");
         root.classList.add(theme);
         localStorage.setItem("theme", theme);
     }, [theme])
 
     const toggleTheme = () => {
-        setTheme((prev) => (prev === "light" ? "Dark" : "light"))
+        setTheme((prev) => (prev === "light" ? "dark" : "light"))
     };
 
     return(

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { api } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -70,7 +70,7 @@ const Communication: React.FC = () => {
     groupIds: '',
     ministryIds: '',
     scheduledAt: '',
-    senderId: '1' // Default sender ID
+    senderId: '1' 
   });
 
   const [eventForm, setEventForm] = useState({
@@ -81,7 +81,7 @@ const Communication: React.FC = () => {
     endDate: '',
     location: '',
     maxAttendees: '',
-    organizerId: '1', // Default organizer ID
+    organizerId: '1',
     ministryId: '',
     groupId: ''
   });
@@ -93,11 +93,11 @@ const Communication: React.FC = () => {
   const fetchData = async () => {
     try {
       const [messagesRes, eventsRes, membersRes, ministriesRes, groupsRes] = await Promise.all([
-        axios.get('http://localhost:3001/api/communication/messages'),
-        axios.get('http://localhost:3001/api/communication/events'),
-        axios.get('http://localhost:3001/api/members'),
-        axios.get('http://localhost:3001/api/ministries'),
-        axios.get('http://localhost:3001/api/groups')
+        api.get('/communication/messages'),
+        api.get('/communication/events'),
+        api.get('/members'),
+        api.get('/ministries'),
+        api.get('/groups')
       ]);
 
       setMessages(messagesRes.data);
@@ -123,7 +123,7 @@ const Communication: React.FC = () => {
         scheduledAt: messageForm.scheduledAt ? new Date(messageForm.scheduledAt) : null
       };
 
-      await axios.post('http://localhost:3001/api/communication/messages', messageData);
+      await api.post('/communication/messages', messageData);
       fetchData();
       setShowMessageForm(false);
       resetMessageForm();
@@ -142,7 +142,7 @@ const Communication: React.FC = () => {
         maxAttendees: eventForm.maxAttendees ? parseInt(eventForm.maxAttendees) : null
       };
 
-      await axios.post('http://localhost:3001/api/communication/events', eventData);
+      await api.post('/communication/events', eventData);
       fetchData();
       setShowEventForm(false);
       resetEventForm();
@@ -183,7 +183,7 @@ const Communication: React.FC = () => {
 
   const handleSendMessage = async (messageId: string) => {
     try {
-      await axios.post(`http://localhost:3001/api/communication/messages/${messageId}/send`);
+      await api.post(`/communication/messages/${messageId}/send`);
       fetchData();
     } catch (error) {
       console.error('Error sending message:', error);

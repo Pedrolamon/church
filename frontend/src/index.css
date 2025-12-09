@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    --page-dark: #302e2e;
+    --text-dark: #F2F2F2;
+    --button-dark: #f4e1d9;
+  }

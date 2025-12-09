@@ -15,7 +15,7 @@ const Navbar: React.FC<NavbarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 lg:hidden">
+    <nav className="bg-white shadow-sm border-b border-gray-200 lg:hidden dark:bg-(--page-dark)">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">

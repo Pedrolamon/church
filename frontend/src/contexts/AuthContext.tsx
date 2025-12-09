@@ -74,9 +74,7 @@ const login: AuthContextType["login"] = async (email, password) => {
 };
 
 const checkSession = async () => {
-  
   const token = localStorage.getItem(AUTH_TOKEN_CONSTANT);
-    console.log("🔑 Ponto A (AuthContext): Token lido do localStorage:", token ? 'Existe' : 'NÃO existe');
 
     if (!token) {
         setIsLoading(false);
@@ -84,7 +82,6 @@ const checkSession = async () => {
     }
 
   try {
-    console.log("🔑 Ponto B (AuthContext): Tentando chamar AuthMe() com o token...");
     const user = await AuthMe()
 
     if(!user) {
@@ -94,7 +91,6 @@ const checkSession = async () => {
     setUser(user)
     setIsAuth(true)
   } catch {
-    console.error("❌ checkSession falhou:")
     logout()
   } finally {
     setIsLoading(false)
@@ -109,14 +105,11 @@ const hasPermission = (requiredRole: UserRole): boolean => {
 useEffect(() => {
   setIsLoading(true)
 
-  // Check if token exists
   const token = localStorage.getItem(AUTH_TOKEN_CONSTANT)
 
-  // If it doesn't exist, means the user is not auth, just ignore
   if(!token) {
     setIsLoading(false)
-
-    return // Continue
+    return
   }
 
   api.defaults.headers["Authorization"] = `Bearer ${token}`
